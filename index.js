@@ -21,7 +21,7 @@ const swaggerDefinition = {
       description:
         'This is a Authentication API application made with Express. It retrieves data from Auth-BACKENED.',
       contact: {
-        name: 'BOLT',
+        name: 'Authedemo',
         url: 'https://jsonplaceholder.typicode.com',
       },
     },

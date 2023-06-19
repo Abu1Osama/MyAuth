@@ -28,9 +28,9 @@ userRouter.get("/", (req, res) => {
  *         age:
  *           type: integer
  *           description: age of user/admin.
- *         location:
+ *         gender:
  *           type: string
- *           description: location of user/admin.
+ *           description: gender of user/admin.
  *     RegResult:
  *       type: object
  *       properties:
