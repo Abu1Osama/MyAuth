@@ -1,89 +1,28 @@
-const express=require("express")
-const { connection } = require("./Config/db")
-const { auth } = require("./Middlewere/Auth")
-const { userRouter } = require("./Routes/User.route")
-const cors = require("cors")
-const app = express()
-app.use(express.json())
-require("dotenv").config()
+const express = require("express");
+const { connection } = require("./Config/db");
+const { auth } = require("./Middlewere/Auth");
+const { userRouter } = require("./Routes/User.route");
+const { resultRouter } = require("./Routes/Result.route");
+const cors = require("cors");
 
+const app = express();
+app.use(express.json());
+app.use(cors());
+require("dotenv").config();
 
+app.use("/users", userRouter);
 
-// app.js
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+app.use(auth);
 
-const swaggerDefinition = {
-    openapi: '3.0.0',
-    info: {
-      title: 'Express API for Authentication',
-      version: '1.0.0',
-      description:
-        'This is a Authentication API application made with Express. It retrieves data from Auth-BACKENED.',
-      contact: {
-        name: 'Authedemo',
-        url: 'https://jsonplaceholder.typicode.com',
-      },
-    },
-    servers: [
-      {
-        url: 'http://localhost:7870',
-        description: 'Development server',
-      },
-    ],
+app.use("/results", resultRouter);
 
-    components:{
-    securitySchemes: {
-        bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT'  
-        }
-      }
-    }
-  };
-
-const options = {
-  swaggerDefinition,
-  // Paths to files containing OpenAPI definitions
-  apis: ['./Routes/*.js']
-};
-
-const swaggerSpec = swaggerJSDoc(options);
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-
-
-  
-
-
-app.use(express.json())
-app.use(cors())
-
-//Authentication user/admin
-app.use("/users",userRouter)
-
-
-
-// User Authorization
-app.use(auth)
-
-//CRUD Operation (productRoute)
-
-
-
-
-
-
-
-
-app.listen(process.env.port,async()=>{
-    try {
-        await connection
-        console.log("database connected")
-    } catch (error) {
-        console.log(error)
-    }
-    console.log(`server is running on port ${process.env.port} `)
-})
-
+const port = process.env.PORT || 3000;
+app.listen(port, async () => {
+  try {
+    await connection;
+    console.log("Database connected");
+  } catch (error) {
+    console.log(error);
+  }
+  console.log(`Server is running on port ${port}`);
+});
