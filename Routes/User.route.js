@@ -11,6 +11,13 @@ userRouter.get("/", (req, res) => {
 
 /**
  * @swagger
+ * tags:
+ *   name: Users
+ *   description: API endpoints for user management
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     NewUser:
@@ -18,79 +25,78 @@ userRouter.get("/", (req, res) => {
  *       properties:
  *         name:
  *           type: string
- *           description: name.
+ *           description: Name of the user/admin.
  *         email:
  *           type: string
- *           description: email of user/admin.
+ *           description: Email of the user/admin.
  *         password:
  *           type: string
- *           description: password of user/admin.
+ *           description: Password of the user/admin.
  *         age:
  *           type: integer
- *           description: age of user/admin.
+ *           description: Age of the user/admin.
  *         gender:
  *           type: string
- *           description: gender of user/admin.
+ *           description: Gender of the user/admin.
  *     RegResult:
  *       type: object
  *       properties:
  *         msg:
  *           type: string
- *           description: message
- *           example: User Registered Succesfully. 
+ *           description: Message.
+ *           example: User Registered Successfully.
  *     LogReq:
  *       type: object
  *       properties:
  *         email:
  *           type: string
- *           description: message
- *           example: Albin@gmail.com.
+ *           description: Email of the user/admin.
+ *           example: albin@gmail.com.
  *         password:
  *           type: string
- *           description: message
+ *           description: Password of the user/admin.
  *           example: Albin123.
  *     LogResult:
  *       type: object
  *       properties:
  *         msg:
  *           type: string
- *           description: message
- *           example: User logged in Succesfully.
+ *           description: Message.
+ *           example: User logged in successfully.
  *         token:
  *           type: string
- *           description: token
+ *           description: Token.
  *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
  */
 
 /**
  * @swagger
  * /users/register:
- *  post:
- *    summary: To post details of new user/admin.
- *    tags: [Users]
- *    requestBody:
- *     required: true
- *     content:
- *       application/json:
- *         schema:
- *            $ref: '#/components/schemas/NewUser' 
- *    responses:
- *     200:
- *       description: The user was successfully registered
+ *   post:
+ *     summary: Register a new user/admin
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
  *       content:
  *         application/json:
- *            schema:
- *               $ref: '#/components/schemas/LogResult'
- *     500:
- *       description: Bad Request      
+ *           schema:
+ *             $ref: '#/components/schemas/NewUser'
+ *     responses:
+ *       200:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RegResult'
+ *       500:
+ *         description: Bad Request
  */
-
 userRouter.post("/register", async (req, res) => {
   const { name, email, password, gender, age } = req.body;
   try {
     const emailcheck = await userModel.findOne({ email });
     if (emailcheck) {
-      res.status(400).send({ msg: "email already used" });
+      res.status(400).send({ msg: "Email already used" });
     } else {
       bcrypt.hash(password, 5, async (err, hash) => {
         const user = new userModel({
@@ -101,7 +107,7 @@ userRouter.post("/register", async (req, res) => {
           age,
         });
         await user.save();
-        res.status(200).send({ msg: "Registration successfull" });
+        res.status(200).send({ msg: "User registered successfully" });
       });
     }
   } catch (error) {
@@ -109,33 +115,28 @@ userRouter.post("/register", async (req, res) => {
   }
 });
 
-
-
-
 /**
  * @swagger
  * /users/login:
- *  post:
- *    summary: To post credentials of new user/admin.
- *    tags: [Users]
- *    requestBody:
- *     required: true
- *     content:
- *       application/json:
- *         schema:
- *            $ref: '#/components/schemas/LogReq' 
- *    responses:
- *     200:
- *       description: user logged in successfully
+ *   post:
+ *     summary: Log in a user/admin
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
  *       content:
  *         application/json:
- *            schema:
+ *           schema:
+ *             $ref: '#/components/schemas/LogReq'
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
  *               $ref: '#/components/schemas/LogResult'
- *     500:
- *       description: Bad Request      
+ *       500:
+ *         description: Bad Request
  */
-
-
 userRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -143,21 +144,23 @@ userRouter.post("/login", async (req, res) => {
     if (user) {
       bcrypt.compare(password, user.password, (err, result) => {
         if (result) {
-          res.status(200).send({
-            msg: "login successfull",
+          const token = jwt.sign({ userId: user._id }, process.env.secret_code); // Corrected property name
+          res.status(200).json({
+            msg: "User logged in successfully",
             name: user.name,
-            token: jwt.sign({ userID: user._id }, process.env.secret_code),
+            token: token,
           });
         } else {
-          res.status(400).send({"msg":"wrong credential"});
+          res.status(400).json({ msg: "Wrong credentials" });
         }
       });
     } else {
-      res.status(400).send({ msg: "No user exist" });
+      res.status(400).json({ msg: "No user exists" });
     }
   } catch (error) {
-    res.status(400).send({ msg: error.message });
+    res.status(400).json({ msg: error.message });
   }
 });
+
 
 module.exports = { userRouter };

@@ -14,45 +14,41 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 const swaggerDefinition = {
-    openapi: '3.0.0',
-    info: {
-      title: 'Express API for Typing World',
-      version: '1.0.0',
-      description:
-        'This is a Typing World API application made with Express. It retrieves data from Typing World-BACKENED.',
-      contact: {
-        name: 'BOLT',
-        url: 'https://jsonplaceholder.typicode.com',
+  openapi: '3.0.0',
+  info: {
+    title: 'Express API for Typing World',
+    version: '1.0.0',
+    description:
+      'This is a Typing World API application made with Express. It retrieves data from Typing World-BACKENED.',
+    contact: {
+      name: 'Typing World',
+      url: 'https://jsonplaceholder.typicode.com',
+    },
+  },
+  servers: [
+    {
+      url: 'http://localhost:7870',
+      description: 'Development server',
+    },
+  ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
       },
     },
-    servers: [
-      {
-        url: 'http://localhost:7870',
-        description: 'Development server',
-      },
-    ],
-
-    components:{
-    securitySchemes: {
-        bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT'  
-        }
-      }
-    }
-  };
+  },
+};
 
 const options = {
   swaggerDefinition,
-  // Paths to files containing OpenAPI definitions
-  apis: ['./Routes/*.js']
+  apis: ['./Routes/*.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-
 
 app.use("/users", userRouter);
 
