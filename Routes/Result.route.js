@@ -2,6 +2,31 @@ const express = require("express");
 const resultRouter = express.Router();
 const ResultModel = require("../Models/result.model");
 
+/**
+ * @swagger
+ * tags:
+ *   name: Results
+ *   description: API endpoints for handling typing results
+ */
+
+/**
+ * @swagger
+ * /results:
+ *   get:
+ *     summary: Get all typing results
+ *     tags: [Results]
+ *     responses:
+ *       200:
+ *         description: A list of typing results
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Result'
+ *       500:
+ *         description: Internal Server Error
+ */
 resultRouter.get("/", async (req, res) => {
   try {
     const typingResults = await ResultModel.find();
@@ -19,12 +44,39 @@ resultRouter.get("/", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /results/resultadd:
+ *   post:
+ *     summary: Add a typing result
+ *     tags: [Results]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Result'
+ *     responses:
+ *       200:
+ *         description: Typing result created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 result:
+ *                   $ref: '#/components/schemas/Result'
+ *       500:
+ *         description: Internal Server Error
+ */
 resultRouter.post("/resultadd", async (req, res) => {
   try {
     const userId = req.user.userID;
     const { accuracy, typingSpeed } = req.body;
     const newResult = new ResultModel({
-        userId: userId,
+      userId: userId,
       accuracy,
       typingSpeed,
     });
@@ -36,4 +88,4 @@ resultRouter.post("/resultadd", async (req, res) => {
   }
 });
 
-module.exports = {resultRouter};
+module.exports = { resultRouter };
